@@ -1,0 +1,46 @@
+version: "3.8"
+
+# define services/containers to be run
+services:
+  web:
+    depends_on:
+      - api
+    build: ./frontend
+    ports:
+      - 5173:5173
+    environment:
+      API_URL: https://localhost:443
+    develop:
+      watch:
+        - path: ./frontend/package.json
+          action: rebuild
+        - path: ./frontend/package-lock.json
+          action: rebuild
+        - path: ./frontend
+          target: /app
+          action: sync
+
+  api:
+    depends_on:
+      - db
+    build: ./backend
+    ports:
+      - 443:443
+    environment:
+      PORT: 443
+      DATABASE_URL: mysql://root:root:3307/onavi
+    command: >
+      sh -c "npx prisma migrate deploy && npm run dev"
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: onavi
+    ports:
+      - 3307:3307
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
