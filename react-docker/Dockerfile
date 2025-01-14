@@ -14,9 +14,13 @@ RUN chown -R app:app .
 
 USER app
 
+# RUN npm install 
+
+# COPY . . 
+
 RUN npm install 
 
-COPY . . 
+COPY --chown=app:app . .
 
 EXPOSE 5173
 

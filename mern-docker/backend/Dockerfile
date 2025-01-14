@@ -1,19 +1,28 @@
-# Use the official Node.js image as the base image
-FROM node:20-alpine
+FROM node:20-alpine3.18
 
-# Create and change to the app directory
+RUN addgroup app && adduser -S -G app app
+
+USER app
+
 WORKDIR /app
 
-# Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Install dependencies
+# change ownership of the /app directory to the app user
+USER root
+
+# change ownership of the /app directory to the app user
+# chown -R <user>:<group> <directory>
+# chown command changes the user and/or group ownership of for given file.
+RUN chown -R app:app .
+
+# change the user back to the app user
+USER app
+
 RUN npm install
 
-# Copy the rest of the application code
-COPY . .
+COPY . . 
 
-# ENV PORT=443
+EXPOSE 8000 
 
-# Expose the port the app runs on
-EXPOSE 443
+CMD npm start
